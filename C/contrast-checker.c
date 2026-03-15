@@ -41,22 +41,42 @@ int validate_hex_string(char hex_string[6]);
 
 /* Utility functions */
 void print_command_usage();
-char *join_array(char *separator, char **array);
+char *join_array(char *separator, char **string);
 
 int main(int argc, char *argv[]) {
+  printf("Processing...\n");
+  fflush(stdin);
+
+  printf("Processing %d args...\n", argc);
+  fflush(stdin);
+
   if (argc <= 1) {
     print_command_usage();
     return 1;
   }
+
+  printf("Passed this stage\n");
+  fflush(stdin);
 
   char **hex_strings;
   char **invalid_strings;
   uint8_t num_of_invalid_strings = 0;
   uint8_t num_of_hex_strings = 0;
 
+  printf("Past variable declarations\n");
+  fflush(stdin);
+
   // Allocate hex_string memory (avoiding segmentation fault)
   hex_strings = (char **)malloc(MAX_HEX_COLOR_OPTIONS * sizeof(char *));
   invalid_strings = (char **)malloc(1000 * sizeof(char *));
+
+  printf("Past array mallocs.\n");
+  fflush(stdin);
+
+  char *argv_array = join_array("; ", argv);
+  printf("Processing... - %s\n", argv_array);
+  free(argv_array);
+  argv_array = NULL;
 
   for (int i = 1; i <= argc - 1; i++) {
     if (strlen(argv[i]) != 6) {
@@ -66,9 +86,16 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  printf("Past string validations\n");
+  fflush(stdin);
+
   if (num_of_invalid_strings > 0) {
-    printf("Invalid Strings: (Expected '[a-zA-Z1-9]{6}' for each 'Word') -  %s",
-           join_array(", ", invalid_strings));
+    char *invalid_strings_joined_str = join_array(", ", invalid_strings);
+    printf(
+        "Invalid Strings: (Expected '[a-zA-Z1-9]{6}' for each 'Word') -  %s\n",
+        invalid_strings_joined_str);
+    free(invalid_strings_joined_str);
+    invalid_strings_joined_str = NULL;
     return 1;
   }
 
@@ -92,20 +119,35 @@ void print_command_usage() {
   printf("%s", command_text);
 }
 
-char *join_array(char *separator, char **array) {
-  char *result_string = malloc(1001 * sizeof(char));
+char *join_array(char *separator, char **string) {
+  char *result_string = (char *)malloc(1001 * sizeof(char));
 
   if (result_string == NULL) {
     perror("Memory Allocation Failed - 'Reporting incorrect Hex Strings.\n");
     exit(EXIT_FAILURE);
   }
 
-  uint8_t array_size = sizeof(array) / sizeof(array[0]);
+  printf("In 'Join Array' function past result string malloc. \n");
+  fflush(stdin);
 
-  for (int i = 0; i <= array_size + 1; i++) {
-    strcat(result_string, array[i]);
+  printf("Size of string %lu\n", sizeof(string));
+  printf("Size of first element %lu \n", sizeof(string[0]));
+
+  printf("In 'Join Array' function: Calculating string array size. \n");
+  fflush(stdin);
+
+  char **limit_ptr = string;
+
+  while (*limit_ptr != NULL) {
+    printf("Size of the Result String: %lu\n", sizeof(result_string));
+    printf("inside limit_ptr: %s. \n", *limit_ptr);
+    strcat(result_string, *limit_ptr);
     strcat(result_string, separator);
+    limit_ptr++;
   }
+
+  printf("In 'Join Array' function: Concat result string. \n");
+  fflush(stdin);
 
   return result_string;
 }
